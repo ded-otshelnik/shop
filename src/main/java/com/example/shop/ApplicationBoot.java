@@ -18,16 +18,17 @@ public class ApplicationBoot implements ApplicationListener<ApplicationReadyEven
     private static final Logger logger = LoggerFactory.getLogger(ApplicationBoot.class.getName());
     @Value("${spring.jpa.hibernate.ddl-auto}")
     private String needToUploadDB;
+
     @Autowired
+    public ApplicationBoot(UserRepository userRepo, ProductRepository prodRepo, OrderRepository orderRepo){
+        this.userRepo = userRepo;
+        this.prodRepo = prodRepo;
+        this.orderRepo = orderRepo;
+    }
     UserRepository userRepo;
-    @Autowired
     ProductRepository prodRepo;
-    @Autowired
     OrderRepository orderRepo;
-    /**
-     * This event is executed as late as conceivably possible to indicate that
-     * the application is ready to service requests.
-     */
+
     @Override
     public void onApplicationEvent(final ApplicationReadyEvent event) {
         if (needToUploadDB.equals("create-drop")||

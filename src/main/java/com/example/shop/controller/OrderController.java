@@ -16,8 +16,12 @@ import java.util.Set;
 @RestController
 @RequestMapping("/orders")
 public class OrderController {
-    @Autowired
+
     private OrderDAO orderDAO;
+    @Autowired
+    public OrderController(OrderDAO orderDAO){
+        this.orderDAO = orderDAO;
+    }
 
     @PostMapping("create-order")
     public ResponseEntity<String> createOrder(@RequestParam String login){

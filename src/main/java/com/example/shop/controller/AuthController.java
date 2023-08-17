@@ -11,12 +11,16 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequestMapping("/auth")
 public class AuthController {
+    private UserDAO userDAO;
+
     @Autowired
-    private UserDAO usersDAO;
+    public AuthController(UserDAO userDAO){
+        this.userDAO = userDAO;
+    }
 
     @GetMapping("/login")
     public ResponseEntity<String> Authorization(@RequestParam("login") String login, @RequestParam("password") String password){
-        return usersDAO.checkCredentials(login, password);
+        return userDAO.checkCredentials(login, password);
     }
     @GetMapping("/register")
     public ResponseEntity<String> Register(@RequestParam("surname") String surname,
@@ -24,6 +28,6 @@ public class AuthController {
                                            @RequestParam("password") String password,
                                            @RequestParam("phone_number") String phoneNumber,
                                            @RequestParam("email") String email){
-        return usersDAO.registerNewUser(login, password, surname, phoneNumber, email);
+        return userDAO.registerNewUser(login, password, surname, phoneNumber, email);
     }
 }

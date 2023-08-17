@@ -74,7 +74,7 @@ public class User {
     }
 
 
-    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany
     @Getter
     private final Set<Order> orders = new HashSet<>();
 
@@ -88,7 +88,7 @@ public class User {
         order.setUser(null);
     }
 
-    @OneToMany(mappedBy = "user", cascade = CascadeType.MERGE, orphanRemoval = true)
+    @OneToMany
     @Getter
     private Set<Review> reviews = new HashSet<>();
 
@@ -104,6 +104,7 @@ public class User {
 
     @Getter
     @Column(name = "favorites")
+    @ElementCollection
     List<Long> favorites = new ArrayList<Long>();
 
     public void addToFav(Long productId) {
@@ -119,6 +120,7 @@ public class User {
 
     @Getter
     @Column(name = "cart")
+    @ElementCollection
     List<Long> cart = new ArrayList<>();
 
     public boolean addToCart(Long productId) {

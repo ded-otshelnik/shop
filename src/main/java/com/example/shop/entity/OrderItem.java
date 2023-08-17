@@ -16,11 +16,11 @@ public class OrderItem{
     private Long id;
 
     @JsonIgnore
-    @ManyToOne(cascade = CascadeType.MERGE)
+    @ManyToOne
     private Order order;
 
     @Getter
-    @OneToOne(fetch = FetchType.LAZY)
+    @OneToOne
     @NonNull
     private Product product;
 

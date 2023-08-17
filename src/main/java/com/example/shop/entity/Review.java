@@ -23,7 +23,8 @@ public class Review {
     @Setter
     private String text;
 
-    @ManyToOne(cascade = CascadeType.MERGE,fetch = FetchType.LAZY)
+    @ManyToOne
+    @JoinColumn
     @JsonIgnore
     private User user;
 
@@ -31,7 +32,8 @@ public class Review {
     public Long GetUserId(){
         return user.getId();
     }
-    @ManyToOne(cascade = CascadeType.MERGE,fetch = FetchType.LAZY)
+    @ManyToOne
+    @JoinColumn
     @JsonIgnore
     private Product product;
 

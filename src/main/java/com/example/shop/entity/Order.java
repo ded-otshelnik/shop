@@ -14,7 +14,6 @@ import java.util.Set;
 @Data
 @Entity
 @Table(name = "orders")
-@NamedEntityGraph(name = "ordersEntityGraph",attributeNodes = {@NamedAttributeNode("products")})
 @NoArgsConstructor
 public class Order{
 
@@ -25,10 +24,11 @@ public class Order{
     private Long id;
 
     @Column(name = "products")
-    @OneToMany(mappedBy="order", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany
     private Set<OrderItem> products = new HashSet<>();
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne
+    @JoinColumn
     @JsonIgnore
     private User user;
 

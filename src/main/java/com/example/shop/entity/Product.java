@@ -45,7 +45,7 @@ public class Product{
     private String images;
 
     @Column(name = "reviews")
-    @OneToMany(cascade = CascadeType.MERGE,orphanRemoval=true)
+    @OneToMany
     @JsonIgnore
     private Set<Review> reviews = new HashSet<>();
 

@@ -13,6 +13,7 @@ import com.example.shop.repo.OrderRepository;
 import com.example.shop.repo.ProductRepository;
 import com.example.shop.repo.UserRepository;
 
+import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -20,13 +21,19 @@ import org.springframework.stereotype.Component;
 
 @Component
 public class OrderDAO {
-    @Autowired
     private ProductRepository productRepository;
-    @Autowired
     private OrderRepository orderRepository;
-    @Autowired
     private UserRepository userRepository;
+    @Autowired
+    public OrderDAO(OrderRepository orderRepository,
+                    ProductRepository productRepository,
+                    UserRepository userRepository){
+        this.orderRepository = orderRepository;
+        this.productRepository = productRepository;
+        this.userRepository = userRepository;
+    }
 
+    @Transactional
     public ResponseEntity<String> createOrder(String login){
         Order order = new Order();
         Optional<User> optionalUser = userRepository.findByLogin(login);
@@ -48,6 +55,7 @@ public class OrderDAO {
         orderRepository.save(order);
         return new ResponseEntity<String>("Order was created",HttpStatus.CREATED);
     }
+    @Transactional
     public ResponseEntity<String> deleteOrder(Long orderId){
         if(!orderRepository.existsById(orderId)){
             return new ResponseEntity<String>("Invalid order id. Order wasn't deleted.",HttpStatus.BAD_REQUEST);

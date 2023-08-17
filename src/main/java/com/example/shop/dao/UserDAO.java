@@ -2,6 +2,7 @@ package com.example.shop.dao;
 
 import com.example.shop.entity.User;
 import com.example.shop.repo.UserRepository;
+import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -12,8 +13,11 @@ import java.util.Optional;
 
 @Component
 public class UserDAO {
-    @Autowired
     private UserRepository userRepository;
+    @Autowired
+    public UserDAO(UserRepository userRepository){
+        this.userRepository = userRepository;
+    }
 
     public ResponseEntity<String> checkCredentials(String login, String password){
         var users=userRepository.findAll();
@@ -29,6 +33,7 @@ public class UserDAO {
         }
         return new ResponseEntity<String>("Incorrect login.", HttpStatus.FORBIDDEN);
     }
+    @Transactional
     public ResponseEntity<String> registerNewUser(String login, String password, String surname,
                                                   String phoneNumber, String email){
         if(userRepository.existsByLogin(login)){
@@ -44,6 +49,8 @@ public class UserDAO {
     public Optional<User> getUserByLogin(String login){
         return userRepository.findByLogin(login);
     }
+
+    @Transactional
     public void addToCart(String login, long id){
         User user = userRepository.findByLogin(login).get();
         user.addToCart(id);

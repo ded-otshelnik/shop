@@ -13,14 +13,19 @@ import java.util.List;
 @RestController
 @RequestMapping("/favorites")
 public class FavoritesController {
-    @Autowired
-    private UserDAO usersDAO;
-    @Autowired
+
+    private UserDAO userDAO;
     private ProductDAO productDAO;
+
+    @Autowired
+    public FavoritesController(UserDAO userDAO,ProductDAO productDAO){
+        this.userDAO = userDAO;
+        this.productDAO = productDAO;
+    }
 
     @GetMapping
     public ResponseEntity<List<Product>> getFavorites(@RequestParam String login){
-        return new ResponseEntity<>(usersDAO.getUserByLogin(login).get().getFavorites()
+        return new ResponseEntity<>(userDAO.getUserByLogin(login).get().getFavorites()
                 .stream()
                 .map(id->productDAO.getProduct(id))
                 .toList(), HttpStatus.OK);
@@ -28,7 +33,7 @@ public class FavoritesController {
     @PostMapping("add_to_fav")
     public ResponseEntity<HttpStatus> addToFav(@RequestParam String login, @RequestParam("product_id") long id){
         if(productDAO.exists(id)){
-            usersDAO.addToFav(login,id);
+            userDAO.addToFav(login,id);
             return new ResponseEntity<>(HttpStatus.OK);
         }
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
@@ -36,7 +41,7 @@ public class FavoritesController {
     @DeleteMapping("remove_from_fav")
     public ResponseEntity<HttpStatus> removeFromFav(@RequestParam String login, @RequestParam("product_id") long id){
         if(productDAO.exists(id)){
-            usersDAO.removeFromFav(login,id);
+            userDAO.removeFromFav(login,id);
             return new ResponseEntity<>(HttpStatus.OK);
         }
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);

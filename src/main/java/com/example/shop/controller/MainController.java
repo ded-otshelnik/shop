@@ -18,10 +18,14 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 public class MainController {
 
-    @Autowired
-    private UserDAO usersDAO;
-    @Autowired
+    private UserDAO userDAO;
     private ProductDAO productDAO;
+
+    @Autowired
+    public MainController(UserDAO userDAO,ProductDAO productDAO){
+        this.userDAO = userDAO;
+        this.productDAO = productDAO;
+    }
 
     @GetMapping("{goodId}")
     public ResponseEntity<Product> getProduct(@PathVariable("goodId") long id){
@@ -38,11 +42,11 @@ public class MainController {
     }
     @GetMapping("get-users")
     private ResponseEntity<List<User>> GetUsers(){
-        return new ResponseEntity<List<User>>(usersDAO.getUsers(), HttpStatus.OK);
+        return new ResponseEntity<List<User>>(userDAO.getUsers(), HttpStatus.OK);
     }
     @GetMapping("get-reviews")
     private ResponseEntity<Set<Review>> GetReviews(){
-        return new ResponseEntity<Set<Review>>(usersDAO.getUsers().get(0).getReviews(), HttpStatus.OK);
+        return new ResponseEntity<Set<Review>>(userDAO.getUsers().get(0).getReviews(), HttpStatus.OK);
     }
 
 }
