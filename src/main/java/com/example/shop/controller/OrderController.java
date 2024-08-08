@@ -11,13 +11,16 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+
+import java.util.List;
 import java.util.Set;
 
 @RestController
-@RequestMapping("/orders")
+@RequestMapping("/api/user/orders")
 public class OrderController {
 
-    private OrderDAO orderDAO;
+    private final OrderDAO orderDAO;
+
     @Autowired
     public OrderController(OrderDAO orderDAO){
         this.orderDAO = orderDAO;
@@ -27,12 +30,14 @@ public class OrderController {
     public ResponseEntity<String> createOrder(@RequestParam String login){
         return orderDAO.createOrder(login);
     }
+
     @DeleteMapping("delete-order")
-    public ResponseEntity<String> deleteOrder(@RequestParam("order_id") String orderId){
-        return orderDAO.deleteOrder(Long.parseLong(orderId));
+    public ResponseEntity<String> deleteOrder(@RequestParam String login, @RequestParam("order_id") long orderId){
+        return orderDAO.deleteOrder(login, orderId);
     }
+
     @GetMapping
-    public ResponseEntity<Set<Order>> getOrders(@RequestParam String login){
-        return new ResponseEntity<Set<Order>>(orderDAO.getUserOrders(login),HttpStatus.OK);
+    public ResponseEntity<List<Order>> getOrders(@RequestParam String login){
+        return orderDAO.getUserOrders(login);
     }
 }

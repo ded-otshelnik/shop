@@ -6,63 +6,48 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
+@Getter
 @Data
 @Entity
 @Table(name = "products")
 @NoArgsConstructor
+@RequiredArgsConstructor
 @JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
 public class Product{
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "product_id")
-    @Getter
     private Long id;
 
     @Column(name = "product_name",nullable = false)
-    @Getter
     @Setter
     @NonNull
     private String productName;
 
-    @Column(name="description")
-    @Getter
     @Setter
     private String description;
 
     @Column(name = "price",nullable = false)
-    @Getter
     @Setter
     @NonNull
     private Double price;
 
-    @Column(name = "images")
-    @Getter
-    @Setter
-    private String images;
-
-    @Column(name = "reviews")
     @OneToMany
-    @JsonIgnore
-    private Set<Review> reviews = new HashSet<>();
+    private List<Review> reviews = new ArrayList<>();
 
 
-    public void AddReview(Review review){
+    public void addReview(Review review){
         reviews.add(review);
-        review.setProduct(this);
     }
 
-
-    public void RemoveReview(Review review){
+    public void removeReview(Review review){
         reviews.remove(review);
-        review.setProduct(this);
     }
 
-    public Product(String productName,Double price){
-        this.productName=productName;
-        this.price=price;
-    }
 }

@@ -3,93 +3,53 @@ package com.example.shop.entity;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.*;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.userdetails.UserDetails;
 
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
+@Getter
 @Data
 @Entity
 @Table(name = "users")
 @NoArgsConstructor
-public class User {
+@RequiredArgsConstructor
+public class User implements UserDetails {
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "user_id")
-    @Getter
-    private Long id;
-
-    @Column(name = "surname", nullable = false)
-    @Getter
-    @Setter
-    private String surname;
-
-    @Column(name = "login", unique = true, nullable = false)
-    @Getter
+    @Column(unique = true, nullable = false)
     @Setter
     @NonNull
     private String login;
 
-    @Column(name = "password", nullable = false)
-    @Getter
-    @Setter
-    @NonNull
     @JsonIgnore
+    @NonNull
     private String password;
 
+    @Transient
+    private String passwordConfirm;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "role", nullable = false)
+    @Setter
+    @NonNull
+    private Role role;
+
+    @Setter
+    private String surname;
+
     @Column(name = "user_email")
-    @Getter
     @Setter
     private String email;
 
-    @Column(name = "email_is_comfirmed")
-    @Getter
+    @Transient
     @Setter
-    private Boolean emailIsComfirmed = false;
+    private Boolean emailIsConfirmed = false;
 
-    @Column(name = "phone_number")
-    @Getter
     @Setter
     private String phoneNumber;
 
-    @Column(name = "role")
-    @Getter
-    @Setter
-    private String role;
-
-    @Column(name = "img")
-    @Getter
-    @Setter
-    private String img;
-
-    public User(String surname, String login, String password, String email, String phoneNumber, String role, String img) {
-        this.surname = surname;
-        this.login = login;
-        this.password = password;
-        this.email = email;
-        this.phoneNumber = phoneNumber;
-        this.role = role;
-        this.img = img;
-    }
-
-
     @OneToMany
-    @Getter
-    private final Set<Order> orders = new HashSet<>();
-
-    public void addOrder(Order order) {
-        orders.add(order);
-        order.setUser(this);
-    }
-
-    public void removeOrder(Order order) {
-        orders.remove(order);
-        order.setUser(null);
-    }
-
-    @OneToMany
-    @Getter
     private Set<Review> reviews = new HashSet<>();
 
     public void addReview(Review review) {
@@ -102,23 +62,18 @@ public class User {
         review.setUser(null);
     }
 
-    @Getter
     @Column(name = "favorites")
     @ElementCollection
     List<Long> favorites = new ArrayList<Long>();
 
-    public void addToFav(Long productId) {
-        favorites.add(productId);
+    public boolean addToFav(Long productId) {
+        return favorites.add(productId);
     }
 
     public boolean removeFromFav(Long productId) {
-        if (!favorites.isEmpty()) {
-            return favorites.remove(productId);
-        }
-        return false;
+        return favorites.remove(productId);
     }
 
-    @Getter
     @Column(name = "cart")
     @ElementCollection
     List<Long> cart = new ArrayList<>();
@@ -128,13 +83,48 @@ public class User {
     }
 
     public boolean removeFromCart(Long productId) {
-        if (!cart.isEmpty())
-            return cart.remove(productId);
-        return false;
+        return cart.remove(productId);
     }
 
     public boolean clearCart() {
         cart = new ArrayList<>();
         return true;
+    }
+
+    // Spring Security part
+
+    @Override
+    public String getUsername() {
+        return login;
+    }
+
+    @Override
+    public boolean isAccountNonExpired() {
+        return true;
+    }
+
+    @Override
+    public boolean isAccountNonLocked() {
+        return true;
+    }
+
+    @Override
+    public boolean isCredentialsNonExpired() {
+        return true;
+    }
+
+    @Override
+    public boolean isEnabled() {
+        return true;
+    }
+
+    @Override
+    public Collection<? extends GrantedAuthority> getAuthorities() {
+        return List.of(new SimpleGrantedAuthority(role.name()));
+    }
+
+    @Override
+    public @NonNull String getPassword() {
+        return password;
     }
 }

@@ -9,12 +9,12 @@ import java.util.List;
 
 @Component
 public class ProductDAO {
-    private ProductRepository productRepository;
+    private final ProductRepository productRepository;
+
     @Autowired
     public ProductDAO(ProductRepository productRepository){
         this.productRepository = productRepository;
     }
-
 
     public Product getProduct(Long productId){
         return productRepository.findById(productId.longValue());

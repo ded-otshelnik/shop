@@ -1,33 +1,43 @@
 package com.example.shop.controller;
 
 import com.example.shop.dao.UserDAO;
+import com.example.shop.config.JwtTokenService;
+import com.example.shop.entity.jwt.JwtRequest;
+import com.example.shop.entity.jwt.JwtResponse;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/auth")
+@RequiredArgsConstructor
 public class AuthController {
-    private UserDAO userDAO;
+    private final UserDAO userDAO;
+    private final JwtTokenService jwtTokenService;
+    private final AuthenticationManager authenticationManager;
 
-    @Autowired
-    public AuthController(UserDAO userDAO){
-        this.userDAO = userDAO;
+    @PostMapping("/login")
+    public ResponseEntity<?> login(@RequestBody JwtRequest request){
+        try {
+            authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(request.getLogin(), request.getPassword()));
+        }
+        catch (BadCredentialsException ex){
+            return new ResponseEntity<>("Incorrect credentials", HttpStatus.UNAUTHORIZED);
+        }
+        UserDetails userDetails = userDAO.loadUserByUsername(request.getLogin());
+        String token = jwtTokenService.generateToken(userDetails);
+        return ResponseEntity.ok(new JwtResponse(token));
     }
 
-    @GetMapping("/login")
-    public ResponseEntity<String> Authorization(@RequestParam("login") String login, @RequestParam("password") String password){
-        return userDAO.checkCredentials(login, password);
-    }
-    @GetMapping("/register")
-    public ResponseEntity<String> Register(@RequestParam("surname") String surname,
-                                           @RequestParam("login") String login,
-                                           @RequestParam("password") String password,
-                                           @RequestParam("phone_number") String phoneNumber,
-                                           @RequestParam("email") String email){
-        return userDAO.registerNewUser(login, password, surname, phoneNumber, email);
-    }
+    /*@PostMapping("/register")
+    public ResponseEntity<?> register(@RequestParam("login") String login,
+                                           @RequestParam("password") String password){
+        return userDAO.registerNewUser(login, password);
+    }*/
 }

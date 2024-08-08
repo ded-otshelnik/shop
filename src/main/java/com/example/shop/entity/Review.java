@@ -18,7 +18,7 @@ public class Review {
     @Getter
     private Long id;
 
-    @Column(name="text")
+    @Column(name = "text")
     @Getter
     @Setter
     private String text;
@@ -28,9 +28,9 @@ public class Review {
     @JsonIgnore
     private User user;
 
-    @JsonGetter("user_id")
-    public Long GetUserId(){
-        return user.getId();
+    @JsonGetter("user")
+    public String GetUserLogin(){
+        return user.getLogin();
     }
     @ManyToOne
     @JoinColumn
@@ -38,8 +38,8 @@ public class Review {
     private Product product;
 
     @JsonGetter("product_id")
-    public Long GetProductId(){
-        return user.getId();
+    public Long GetProduct(){
+        return product.getId();
     }
 
     @Column(name = "images")

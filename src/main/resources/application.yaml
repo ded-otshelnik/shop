@@ -1,0 +1,39 @@
+version: 0.0.1
+
+server:
+  port: 8080
+
+spring:
+  application:
+    name: Shop Application
+  sql:
+    init:
+      platform: h2
+  datasource:
+    url: jdbc:h2:file:./src/main/resources/db;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE
+    username: sa
+    password:
+    driverClassName: org.h2.Driver
+  h2:
+    console:
+      enabled: true
+      path: /h2-console
+      settings:
+        trace: true
+        web-allow-others: false
+  jpa:
+    hibernate:
+      ddl-auto: create-drop
+    properties:
+      hibernate:
+        show_sql: false
+        format_sql: true
+        use_sql_comments: true
+        dialect: org.hibernate.dialect.H2Dialect
+  jackson:
+    serialization:
+      fail-on-empty-beans: false
+
+token:
+  signing:
+    key: 53a73e5f1c4e0a2d3b5f2d784E6a1b423d6d247d1f6e5c3a596d635a75327855

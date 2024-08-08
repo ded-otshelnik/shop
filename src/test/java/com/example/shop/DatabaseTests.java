@@ -1,51 +1,59 @@
+/*
 package com.example.shop;
 
 import com.example.shop.entity.Product;
-import com.example.shop.entity.Role;
 import com.example.shop.entity.User;
+import com.example.shop.repo.OrderRepository;
 import com.example.shop.repo.ProductRepository;
 import com.example.shop.repo.UserRepository;
-import lombok.NonNull;
+import org.aspectj.lang.annotation.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.context.event.ApplicationReadyEvent;
-import org.springframework.context.ApplicationListener;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
-import org.springframework.stereotype.Component;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.context.junit4.SpringRunner;
 
-import java.util.Collections;
+@RunWith(SpringRunner.class)
+@SpringBootTest(classes = ShopApplication.class)
+public class DatabaseTests {
 
-@Component
-public class ApplicationBoot implements ApplicationListener<ApplicationReadyEvent> {
+
     private static final Logger logger = LoggerFactory.getLogger(ApplicationBoot.class.getName());
     @Value("${spring.jpa.hibernate.ddl-auto}")
     private String needToUploadDB;
 
     private final UserRepository userRepo;
     private final ProductRepository prodRepo;
-    private final BCryptPasswordEncoder bCryptPasswordEncoder;
+    private final OrderRepository orderRepo;
 
     @Autowired
-    public ApplicationBoot(UserRepository userRepo, ProductRepository prodRepo,
-                           BCryptPasswordEncoder bCryptPasswordEncoder){
+    public DatabaseTests(UserRepository userRepo, ProductRepository prodRepo, OrderRepository orderRepo){
         this.userRepo = userRepo;
         this.prodRepo = prodRepo;
-        this.bCryptPasswordEncoder = bCryptPasswordEncoder;
+        this.orderRepo = orderRepo;
     }
 
-    @Override
-    public void onApplicationEvent(final @NonNull ApplicationReadyEvent event) {
+    private void initDatabaseWithTestValues() {
         if (needToUploadDB.equals("create-drop")||
                 needToUploadDB.equals("drop-and-create")||
                 needToUploadDB.equals("create")){
-            User user = new User("test", bCryptPasswordEncoder.encode("test"), Role.ROLE_USER);
+            User user = new User("test", "test", "test", null, "+1-111-111-11-11", null, null);
             userRepo.save(user);
-            User admin = new User("andrey", bCryptPasswordEncoder.encode("admin"), Role.ROLE_ADMIN);
-            userRepo.save(admin);
-            Product product = new Product("test",8.9);
+            Product product = new Product("Product test",8.9);
             prodRepo.save(product);
-       }
+        }
     }
-}
+    @Test
+    public void isDatabaseCorrectlyInitializedTest(){
+        initDatabaseWithTestValues();
+        final String name = "test";
+        final String login = "test";
+
+        final User user = userRepo.getByLogin()
+
+    }
+}*/

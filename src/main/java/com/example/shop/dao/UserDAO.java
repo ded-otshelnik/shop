@@ -1,74 +1,122 @@
 package com.example.shop.dao;
 
+import com.example.shop.entity.Role;
 import com.example.shop.entity.User;
 import com.example.shop.repo.UserRepository;
-import jakarta.transaction.Transactional;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.stereotype.Component;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.stereotype.Service;
 
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
-@Component
-public class UserDAO {
-    private UserRepository userRepository;
+@Service
+public class UserDAO implements UserDetailsService {
+    private final UserRepository userRepository;
+    private final BCryptPasswordEncoder bCryptPasswordEncoder = new BCryptPasswordEncoder();
+
     @Autowired
     public UserDAO(UserRepository userRepository){
         this.userRepository = userRepository;
     }
 
-    public ResponseEntity<String> checkCredentials(String login, String password){
-        var users=userRepository.findAll();
-        for(var user:users){
-            if(user.getLogin().equals(login)) {
-                if(user.getPassword().equals(password)){
-                    return new ResponseEntity<String>("Authorization is successful.", HttpStatus.OK);
-                }
-                else{
-                    return new ResponseEntity<String>("Incorrect password.", HttpStatus.FORBIDDEN);
-                }
-            }
+    @Transactional(readOnly = true)
+    public ResponseEntity<User> checkCredentials(String login, String password){
+        Optional<User> optionalUser = userRepository.findByLogin(login);
+        if (optionalUser.isEmpty()){
+            return new ResponseEntity<>(new User(), HttpStatus.NOT_FOUND);
         }
-        return new ResponseEntity<String>("Incorrect login.", HttpStatus.FORBIDDEN);
+
+        User user = optionalUser.get();
+        String expectedPassword = user.getPassword();
+        if (!bCryptPasswordEncoder.matches(password, expectedPassword)){
+            return new ResponseEntity<>(new User(), HttpStatus.CONFLICT);
+        }
+
+        return ResponseEntity.ok(user);
     }
+
     @Transactional
-    public ResponseEntity<String> registerNewUser(String login, String password, String surname,
-                                                  String phoneNumber, String email){
-        if(userRepository.existsByLogin(login)){
-            return new ResponseEntity<String>("Invalid login (already exists). Please choose another login.", HttpStatus.FOUND)  ;
+    public ResponseEntity<String> registerNewUser(String login, String password){
+        if (userRepository.existsByLogin(login)){
+            return new ResponseEntity<>("Invalid login (already exists). Please choose another login.",
+                                              HttpStatus.NOT_FOUND);
         }
-        User newUser = new User(surname, login, password, email, phoneNumber, "default",null);
-        userRepository.save(newUser);
-        return new ResponseEntity<String>("User account was created.", HttpStatus.OK);
+        User user = new User(login, bCryptPasswordEncoder.encode(password), Role.ROLE_USER);
+
+        userRepository.save(user);
+        return ResponseEntity.ok("User account was created.");
     }
+
+    @Override
+    @Transactional(readOnly = true)
+    public UserDetails loadUserByUsername(String username) {
+        Optional<User> optionalUser = userRepository.findByLogin(username);
+        if (optionalUser.isEmpty()) throw new UsernameNotFoundException(username);
+
+        User user = optionalUser.get();
+
+        return new org.springframework.security.core.userdetails.User(user.getUsername(), user.getPassword(), user.getAuthorities());
+    }
+
     public List<User> getUsers(){
         return userRepository.findAll();
     }
+
     public Optional<User> getUserByLogin(String login){
         return userRepository.findByLogin(login);
     }
 
     @Transactional
-    public void addToCart(String login, long id){
-        User user = userRepository.findByLogin(login).get();
-        user.addToCart(id);
-        userRepository.save(user);
+    public boolean addToCart(String login, long id){
+        Optional<User> optionalUser = userRepository.findByLogin(login);
+        if (optionalUser.isPresent()){
+            User user = optionalUser.get();
+            user.addToCart(id);
+            userRepository.save(user);
+            return true;
+        }
+        return false;
     }
-    public void removeFromCart(String login, long id){
-        User user = userRepository.findByLogin(login).get();
-        user.removeFromCart(id);
-        userRepository.save(user);
+
+    @Transactional
+    public boolean removeFromCart(String login, long id){
+        Optional<User> optionalUser = userRepository.findByLogin(login);
+        if (optionalUser.isPresent()){
+            User user = optionalUser.get();
+            user.removeFromCart(id);
+            userRepository.save(user);
+            return true;
+        }
+        return false;
     }
-    public void addToFav(String login, long id){
-        User user = userRepository.findByLogin(login).get();
-        user.addToFav(id);
-        userRepository.save(user);
+
+    @Transactional
+    public boolean addToFav(String login, long id){
+        Optional<User> optionalUser = userRepository.findByLogin(login);
+        if (optionalUser.isPresent()) {
+            User user = optionalUser.get();
+            user.addToFav(id);
+            userRepository.save(user);
+            return true;
+        }
+        return false;
     }
-    public void removeFromFav(String login, long id){
-        User user = userRepository.findByLogin(login).get();
-        user.removeFromFav(id);
-        userRepository.save(user);
+
+    @Transactional
+    public boolean removeFromFav(String login, long id){
+        Optional<User> optionalUser = userRepository.findByLogin(login);
+        if (optionalUser.isPresent()) {
+            User user = optionalUser.get();
+            user.removeFromFav(id);
+            userRepository.save(user);
+            return true;
+        }
+        return false;
     }
 }
