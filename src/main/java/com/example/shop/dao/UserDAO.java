@@ -47,7 +47,7 @@ public class UserDAO implements UserDetailsService {
             return new ResponseEntity<>("Invalid login (already exists). Please choose another login.",
                                               HttpStatus.NOT_FOUND);
         }
-        User user = new User(login, bCryptPasswordEncoder.encode(password), Role.ROLE_USER);
+        User user = new User(login, bCryptPasswordEncoder.encode(password), Role.USER);
 
         userRepository.save(user);
         return ResponseEntity.ok("User account was created.");

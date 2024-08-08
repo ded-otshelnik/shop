@@ -40,9 +40,9 @@ public class ApplicationBoot implements ApplicationListener<ApplicationReadyEven
         if (needToUploadDB.equals("create-drop")||
                 needToUploadDB.equals("drop-and-create")||
                 needToUploadDB.equals("create")){
-            User user = new User("test", bCryptPasswordEncoder.encode("test"), Role.ROLE_USER);
+            User user = new User("test", bCryptPasswordEncoder.encode("test"), Role.USER);
             userRepo.save(user);
-            User admin = new User("andrey", bCryptPasswordEncoder.encode("admin"), Role.ROLE_ADMIN);
+            User admin = new User("andrey", bCryptPasswordEncoder.encode("admin"), Role.ADMIN);
             userRepo.save(admin);
             Product product = new Product("test",8.9);
             prodRepo.save(product);

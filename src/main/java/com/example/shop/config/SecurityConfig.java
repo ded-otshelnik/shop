@@ -1,5 +1,6 @@
 package com.example.shop.config;
 
+import com.example.shop.entity.Role;
 import lombok.AllArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -34,6 +35,8 @@ public class SecurityConfig{
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception{
         http.csrf(AbstractHttpConfigurer::disable)
                         .authorizeHttpRequests((request) -> request.requestMatchers("/api/**").authenticated())
+                        .authorizeHttpRequests((request) -> request.requestMatchers("/admin/**")
+                                                                   .hasRole(Role.ADMIN.name()))
                         .authorizeHttpRequests((request) -> request.requestMatchers("/auth/**").permitAll())
                         .authorizeHttpRequests((request) -> request.requestMatchers("/h2-console/**").permitAll())
                         .sessionManagement((session) -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))

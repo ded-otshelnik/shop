@@ -18,6 +18,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
+import java.util.stream.Collectors;
 
 @Component
 @AllArgsConstructor
@@ -34,7 +35,7 @@ public class JwtRequestFilter extends OncePerRequestFilter {
         String authHeader = request.getHeader("Authorization");
 
         String login = null, jwt = null;
-
+        logger.info("Getting login from JWT Token");
         if (authHeader != null && authHeader.startsWith("Bearer ")){
             jwt = authHeader.substring(7);
             try{
@@ -44,7 +45,7 @@ public class JwtRequestFilter extends OncePerRequestFilter {
                 logger.debug("The token is expired");
             }
         }
-
+        logger.info("Setting Authentication token into context");
         if (login != null && SecurityContextHolder.getContext().getAuthentication() == null){
             UserDetails userDetails = userDetailsService.loadUserByUsername(login);
             UsernamePasswordAuthenticationToken token = new UsernamePasswordAuthenticationToken(
