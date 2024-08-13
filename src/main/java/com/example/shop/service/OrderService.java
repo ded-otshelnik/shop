@@ -31,7 +31,7 @@ public class OrderService {
     @Transactional
     public void createOrder(String login, Cart cart){
         // get user that makes a new order
-        Optional<User> optionalUser = userRepository.findByLogin(login);
+        Optional<User> optionalUser = userRepository.findByUsername(login);
         if (optionalUser.isEmpty()){
             throw new UsernameNotFoundException("Invalid user login");
         }
@@ -55,7 +55,7 @@ public class OrderService {
 
     @Transactional
     public ResponseEntity<String> deleteOrder(String login, Long orderId){
-        if (userRepository.existsByLogin(login)){
+        if (userRepository.existsByUsername(login)){
             return new ResponseEntity<String>("Invalid login.", HttpStatus.BAD_REQUEST);
         }
         if (!orderRepository.existsById(orderId)){
@@ -72,7 +72,7 @@ public class OrderService {
     }
 
     public List<Order> getUserOrders(String login){
-        Optional<User> optionalUser = userRepository.findByLogin(login);
+        Optional<User> optionalUser = userRepository.findByUsername(login);
         return optionalUser.map(orderRepository::findAllByUser).orElseThrow(() -> new UsernameNotFoundException("Incorrect login"));
     }
 }

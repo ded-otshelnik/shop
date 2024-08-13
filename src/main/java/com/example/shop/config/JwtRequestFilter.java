@@ -34,21 +34,21 @@ public class JwtRequestFilter extends OncePerRequestFilter {
                                     @NonNull FilterChain filterChain) throws IOException, ServletException {
         String authHeader = request.getHeader("Authorization");
 
-        String login = null, jwt;
-        logger.info("Getting login from JWT Token");
+        String username = null, jwt;
+        logger.info("Getting username from JWT Token");
         if (authHeader != null && authHeader.startsWith("Bearer ")){
             jwt = authHeader.substring(7);
             try {
-                login = jwtTokenService.extractUserName(jwt);
+                username = jwtTokenService.extractUserName(jwt);
             }
             catch (ExpiredJwtException e){
                 logger.info("The token is expired");
             }
         }
 
-        if (login != null && SecurityContextHolder.getContext().getAuthentication() == null){
+        if (username != null && SecurityContextHolder.getContext().getAuthentication() == null){
             logger.info("Setting Authentication token into context");
-            UserDetails userDetails = userDetailsService.loadUserByUsername(login);
+            UserDetails userDetails = userDetailsService.loadUserByUsername(username);
             logger.info(userDetails.getAuthorities().toString());
             UsernamePasswordAuthenticationToken token = new UsernamePasswordAuthenticationToken(userDetails,
                     userDetails.getUsername(),

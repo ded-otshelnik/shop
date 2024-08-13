@@ -11,9 +11,9 @@ import com.example.shop.service.ProductService;
 import com.example.shop.entity.Product;
 import com.example.shop.entity.User;
 import com.example.shop.service.UserService;
+
 import lombok.AllArgsConstructor;
 import org.springframework.http.HttpStatus;
-import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
 @RestController

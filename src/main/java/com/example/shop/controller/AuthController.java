@@ -35,9 +35,10 @@ public class AuthController {
         return ResponseEntity.ok(new JwtResponse(token));
     }
 
-    /*@PostMapping("/register")
-    public ResponseEntity<?> register(@RequestParam("login") String login,
+    @PostMapping("/register")
+    @ResponseStatus(HttpStatus.CREATED)
+    public void register(@RequestParam("login") String login,
                                            @RequestParam("password") String password){
-        return userDAO.registerNewUser(login, password);
-    }*/
+        userService.registerNewUser(login, password);
+    }
 }

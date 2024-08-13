@@ -25,7 +25,7 @@ public class UserService implements UserDetailsService {
 
     @Transactional(readOnly = true)
     public ResponseEntity<User> checkCredentials(String login, String password){
-        Optional<User> optionalUser = userRepository.findByLogin(login);
+        Optional<User> optionalUser = userRepository.findByUsername(login);
         if (optionalUser.isEmpty()){
             return new ResponseEntity<>(new User(), HttpStatus.NOT_FOUND);
         }
@@ -41,7 +41,7 @@ public class UserService implements UserDetailsService {
 
     @Transactional
     public ResponseEntity<String> registerNewUser(String login, String password){
-        if (userRepository.existsByLogin(login)){
+        if (userRepository.existsByUsername(login)){
             return new ResponseEntity<>("Invalid login (already exists). Please choose another login.",
                                               HttpStatus.NOT_FOUND);
         }
@@ -56,7 +56,7 @@ public class UserService implements UserDetailsService {
     @Override
     @Transactional(readOnly = true)
     public UserDetails loadUserByUsername(String username) {
-        Optional<User> optionalUser = userRepository.findByLogin(username);
+        Optional<User> optionalUser = userRepository.findByUsername(username);
         if (optionalUser.isEmpty()) throw new UsernameNotFoundException(username);
 
         User user = optionalUser.get();
@@ -68,7 +68,7 @@ public class UserService implements UserDetailsService {
         return userRepository.findAll();
     }
 
-    public Optional<User> getUserByLogin(String login){
-        return userRepository.findByLogin(login);
+    public Optional<User> getUserByUsername(String login){
+        return userRepository.findByUsername(login);
     }
 }

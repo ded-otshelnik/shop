@@ -21,7 +21,7 @@ public class User implements UserDetails {
     @Column(unique = true, nullable = false)
     @Setter
     @NonNull
-    private String login;
+    private String username;
 
     @JsonIgnore
     @NonNull
@@ -36,9 +36,7 @@ public class User implements UserDetails {
     private Collection<Role> roles;
 
     @Override
-    public String getUsername() {
-        return login;
-    }
+    public String getUsername() {return username;}
 
     @Override
     public boolean isAccountNonExpired() {

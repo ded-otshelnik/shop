@@ -37,7 +37,7 @@ public class Order{
 
     @JsonGetter("user")
     public String getUser() {
-        return user.getLogin();
+        return user.getUsername();
     }
 
     @Column(name = "total")

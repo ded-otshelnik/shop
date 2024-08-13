@@ -1,6 +1,5 @@
 package com.example.shop.entity;
 
-
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
 import lombok.*;

@@ -7,7 +7,6 @@ import lombok.*;
 
 @Data
 @Entity
-@RequiredArgsConstructor
 @NoArgsConstructor
 public class OrderItem{
     @Id
@@ -33,10 +32,10 @@ public class OrderItem{
     @Getter
     private Double price;
 
-    @PostConstruct
-    public void init(){
-        quantity = 1L;
-        price = product.getPrice();
+    public OrderItem(Product product){
+        this.product = product;
+        this.quantity = 1L;
+        this.price = product.getPrice();
     }
 
     public void increment(){
