@@ -1,11 +1,11 @@
 package com.example.shop.controller;
 
-import com.example.shop.dao.UserDAO;
-import com.example.shop.config.JwtTokenService;
+import com.example.shop.service.JwtTokenService;
 import com.example.shop.entity.jwt.JwtRequest;
 import com.example.shop.entity.jwt.JwtResponse;
+import com.example.shop.service.UserService;
+
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -18,7 +18,7 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping("/auth")
 @RequiredArgsConstructor
 public class AuthController {
-    private final UserDAO userDAO;
+    private final UserService userService;
     private final JwtTokenService jwtTokenService;
     private final AuthenticationManager authenticationManager;
 
@@ -30,7 +30,7 @@ public class AuthController {
         catch (BadCredentialsException ex){
             return new ResponseEntity<>("Incorrect credentials", HttpStatus.UNAUTHORIZED);
         }
-        UserDetails userDetails = userDAO.loadUserByUsername(request.getLogin());
+        UserDetails userDetails = userService.loadUserByUsername(request.getLogin());
         String token = jwtTokenService.generateToken(userDetails);
         return ResponseEntity.ok(new JwtResponse(token));
     }

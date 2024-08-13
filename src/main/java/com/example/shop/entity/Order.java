@@ -7,6 +7,7 @@ import lombok.Data;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.hibernate.annotations.Cascade;
 
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -25,12 +26,12 @@ public class Order{
     @Getter
     private Long id;
 
-    @Column(name = "products")
     @OneToMany
+    @Cascade(org.hibernate.annotations.CascadeType.ALL)
     private List<OrderItem> products = new ArrayList<>();
 
     @ManyToOne
-    @JoinColumn
+    @JoinColumn(name = "user_id")
     @JsonIgnore
     private User user;
 
@@ -39,17 +40,8 @@ public class Order{
         return user.getLogin();
     }
 
-    @Column(name = "payment_was_processed")
-    @Getter
-    @Setter
-    private boolean paymentWasProcessed = false;
-
     @Column(name = "total")
     private Double price = 0.0;
 
-    public void addProduct(OrderItem item){
-        products.add(item);
-        item.setOrder(this);
-        price += item.getProductPrice();
-    }
+
 }

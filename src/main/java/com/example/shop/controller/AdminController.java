@@ -1,50 +1,52 @@
 package com.example.shop.controller;
 
+import java.security.Principal;
 import java.util.List;
+import java.util.Optional;
 
-import com.example.shop.dao.ProductDAO;
-import com.example.shop.dao.UserDAO;
+import com.example.shop.entity.Role;
+import com.example.shop.exception.ResourceNotFoundException;
+import com.example.shop.repo.RoleRepository;
+import com.example.shop.service.ProductService;
 import com.example.shop.entity.Product;
 import com.example.shop.entity.User;
-import jakarta.annotation.security.RolesAllowed;
-import org.springframework.beans.factory.annotation.Autowired;
+import com.example.shop.service.UserService;
+import lombok.AllArgsConstructor;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.security.core.Authentication;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping(value = "/api/admin")
+@AllArgsConstructor
 public class AdminController {
 
-    private final UserDAO userDAO;
-    private final ProductDAO productDAO;
+    private final UserService userService;
+    private final ProductService productService;
+    private final RoleRepository roleRepository;
 
-    @Autowired
-    public AdminController(UserDAO userDAO, ProductDAO productDAO){
-        this.userDAO = userDAO;
-        this.productDAO = productDAO;
-    }
-
-    @GetMapping("{goodId}")
-    public ResponseEntity<Product> getProduct(@PathVariable("goodId") long id){
-        Product product = productDAO.getProduct(id);
-        if(product != null){
-            return new ResponseEntity<>(product, HttpStatus.OK);
-        }
-        return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+    @GetMapping("/product/{product_id}")
+    @ResponseStatus(HttpStatus.OK)
+    public Product getProduct(@PathVariable("product_id") Long id, Principal principal){
+        Optional<Product> product = productService.getProduct(id);
+        return product.orElseThrow(() -> new ResourceNotFoundException("Incorrect product id"));
     }
 
     @GetMapping("get-products")
-    private ResponseEntity<List<Product>> GetProducts(){
-        return new ResponseEntity<>(productDAO.getProducts(), HttpStatus.OK);
+    @ResponseStatus(HttpStatus.OK)
+    private List<Product> getProducts(Principal principal){
+        return productService.getProducts();
     }
     @GetMapping("get-users")
-    private ResponseEntity<List<User>> GetUsers(){
-        return new ResponseEntity<>(userDAO.getUsers(), HttpStatus.OK);
+    @ResponseStatus(HttpStatus.OK)
+    private List<User> getUsers(Principal principal){
+        return userService.getUsers();
+    }
+
+    @GetMapping("get-roles")
+    @ResponseStatus(HttpStatus.OK)
+    private List<Role> getRoles(Principal principal){
+        return roleRepository.findAll();
     }
 
 }

@@ -1,4 +1,4 @@
-package com.example.shop.config;
+package com.example.shop.service;
 
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;

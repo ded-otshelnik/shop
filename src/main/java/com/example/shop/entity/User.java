@@ -8,6 +8,7 @@ import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 @Getter
 @Data
@@ -24,74 +25,15 @@ public class User implements UserDetails {
 
     @JsonIgnore
     @NonNull
+    @Column
     private String password;
 
-    @Transient
-    private String passwordConfirm;
-
-    @Enumerated(EnumType.STRING)
-    @Column(name = "role", nullable = false)
-    @Setter
-    @NonNull
-    private Role role;
-
-    @Setter
-    private String surname;
-
-    @Column(name = "user_email")
-    @Setter
-    private String email;
-
-    @Transient
-    @Setter
-    private Boolean emailIsConfirmed = false;
-
-    @Setter
-    private String phoneNumber;
-
-    @OneToMany
-    private Set<Review> reviews = new HashSet<>();
-
-    public void addReview(Review review) {
-        reviews.add(review);
-        review.setUser(this);
-    }
-
-    public void removeReview(Review review) {
-        reviews.remove(review);
-        review.setUser(null);
-    }
-
-    @Column(name = "favorites")
-    @ElementCollection
-    List<Long> favorites = new ArrayList<Long>();
-
-    public boolean addToFav(Long productId) {
-        return favorites.add(productId);
-    }
-
-    public boolean removeFromFav(Long productId) {
-        return favorites.remove(productId);
-    }
-
-    @Column(name = "cart")
-    @ElementCollection
-    List<Long> cart = new ArrayList<>();
-
-    public boolean addToCart(Long productId) {
-        return cart.add(productId);
-    }
-
-    public boolean removeFromCart(Long productId) {
-        return cart.remove(productId);
-    }
-
-    public boolean clearCart() {
-        cart = new ArrayList<>();
-        return true;
-    }
-
     // Spring Security part
+    @ManyToMany
+    @JoinTable(name = "users_roles",
+            joinColumns = @JoinColumn(name = "user_login"),
+            inverseJoinColumns = @JoinColumn(name = "role_id"))
+    private Collection<Role> roles;
 
     @Override
     public String getUsername() {
@@ -120,7 +62,9 @@ public class User implements UserDetails {
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        return List.of(new SimpleGrantedAuthority(role.name()));
+        return roles.stream()
+                .map(role -> new SimpleGrantedAuthority(role.getName()))
+                .collect(Collectors.toList());
     }
 
     @Override

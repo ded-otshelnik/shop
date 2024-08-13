@@ -1,7 +1,7 @@
 package com.example.shop.entity;
 
-import com.fasterxml.jackson.annotation.JsonGetter;
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import jakarta.annotation.PostConstruct;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -17,25 +17,35 @@ public class OrderItem{
     private Long id;
 
     @JsonIgnore
+    @Setter
     @ManyToOne
     private Order order;
 
-    @JsonIgnore
+    @Getter
+    @Column
+    private Long quantity;
+
     @OneToOne
     @NonNull
+    @Getter
     private Product product;
 
-    @JsonGetter("product_id")
-    public long getProduct(){
-        return product.getId();
-    }
-
-    public double getProductPrice(){
-        return product.getPrice() * count;
-    }
-
     @Getter
-    @NonNull
-    @Column
-    private Long count;
+    private Double price;
+
+    @PostConstruct
+    public void init(){
+        quantity = 1L;
+        price = product.getPrice();
+    }
+
+    public void increment(){
+        quantity++;
+        price = product.getPrice() * quantity;
+    }
+
+    public void decrement(){
+        quantity++;
+        price = product.getPrice() * quantity;
+    }
 }
