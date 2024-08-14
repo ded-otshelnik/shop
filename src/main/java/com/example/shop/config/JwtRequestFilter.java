@@ -39,7 +39,7 @@ public class JwtRequestFilter extends OncePerRequestFilter {
         if (authHeader != null && authHeader.startsWith("Bearer ")){
             jwt = authHeader.substring(7);
             try {
-                username = jwtTokenService.extractUserName(jwt);
+                username = jwtTokenService.extractUsername(jwt);
             }
             catch (ExpiredJwtException e){
                 logger.info("The token is expired");
@@ -49,7 +49,6 @@ public class JwtRequestFilter extends OncePerRequestFilter {
         if (username != null && SecurityContextHolder.getContext().getAuthentication() == null){
             logger.info("Setting Authentication token into context");
             UserDetails userDetails = userDetailsService.loadUserByUsername(username);
-            logger.info(userDetails.getAuthorities().toString());
             UsernamePasswordAuthenticationToken token = new UsernamePasswordAuthenticationToken(userDetails,
                     userDetails.getUsername(),
                     userDetails.getAuthorities());

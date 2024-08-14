@@ -2,9 +2,12 @@ package com.example.shop.service;
 
 import com.example.shop.entity.Role;
 import com.example.shop.entity.User;
+import com.example.shop.entity.jwt.JwtRequest;
 import com.example.shop.repo.RoleRepository;
 import com.example.shop.repo.UserRepository;
+import lombok.AllArgsConstructor;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -17,7 +20,7 @@ import org.springframework.stereotype.Service;
 import java.util.*;
 
 @Service
-@RequiredArgsConstructor
+@AllArgsConstructor
 public class UserService implements UserDetailsService {
     private final UserRepository userRepository;
     private final RoleRepository roleRepository;
@@ -40,17 +43,16 @@ public class UserService implements UserDetailsService {
     }
 
     @Transactional
-    public ResponseEntity<String> registerNewUser(String login, String password){
-        if (userRepository.existsByUsername(login)){
-            return new ResponseEntity<>("Invalid login (already exists). Please choose another login.",
-                                              HttpStatus.NOT_FOUND);
+    public void registerNewUser(JwtRequest request){
+        if (userRepository.existsByUsername(request.getLogin())){
+            throw new BadCredentialsException("User with this credentials is already exist");
         }
 
         Role role = roleRepository.findByName("USER").orElseThrow();
-        User user = new User(login, bCryptPasswordEncoder.encode(password));
+        User user = new User(request.getLogin(), bCryptPasswordEncoder.encode(request.getPassword()));
+        user.setRoles(List.of(role));
 
         userRepository.save(user);
-        return ResponseEntity.ok("User account was created.");
     }
 
     @Override
@@ -68,7 +70,7 @@ public class UserService implements UserDetailsService {
         return userRepository.findAll();
     }
 
-    public Optional<User> getUserByUsername(String login){
-        return userRepository.findByUsername(login);
+    public Optional<User> getUserByUsername(String username){
+        return userRepository.findByUsername(username);
     }
 }

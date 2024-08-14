@@ -38,10 +38,10 @@ public class ApplicationBoot implements ApplicationListener<ApplicationReadyEven
                 needToUploadDB.equals("drop-and-create")||
                 needToUploadDB.equals("create")){
 
-            Role user_role = new Role("ROLE_USER");
+            Role user_role = new Role("USER");
             roleRepository.save(user_role);
 
-            Role admin_role = new Role("ROLE_ADMIN");
+            Role admin_role = new Role("ADMIN");
             roleRepository.save(admin_role);
 
             User admin = new User("andrey", bCryptPasswordEncoder.encode("admin"));

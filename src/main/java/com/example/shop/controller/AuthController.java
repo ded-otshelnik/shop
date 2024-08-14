@@ -5,6 +5,9 @@ import com.example.shop.entity.jwt.JwtRequest;
 import com.example.shop.entity.jwt.JwtResponse;
 import com.example.shop.service.UserService;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
+import lombok.AllArgsConstructor;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -16,13 +19,19 @@ import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/auth")
-@RequiredArgsConstructor
+@AllArgsConstructor
+@Tag(name = "AuthController", description = "Authentication controller")
 public class AuthController {
+
     private final UserService userService;
     private final JwtTokenService jwtTokenService;
     private final AuthenticationManager authenticationManager;
 
     @PostMapping("/login")
+    @Operation(
+            summary = "User sign in",
+            description = "Implements sign in process"
+    )
     public ResponseEntity<?> login(@RequestBody JwtRequest request){
         try {
             authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(request.getLogin(), request.getPassword()));
@@ -36,9 +45,21 @@ public class AuthController {
     }
 
     @PostMapping("/register")
-    @ResponseStatus(HttpStatus.CREATED)
-    public void register(@RequestParam("login") String login,
-                                           @RequestParam("password") String password){
-        userService.registerNewUser(login, password);
+    @Operation(
+            summary = "User sign in",
+            description = "Implements sign in process"
+    )
+    public ResponseEntity<?> register(@RequestBody JwtRequest request){
+        try {
+            userService.registerNewUser(request);
+            authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(request.getLogin(), request.getPassword()));
+        }
+        catch (BadCredentialsException ex){
+            return new ResponseEntity<>("Incorrect credentials", HttpStatus.UNAUTHORIZED);
+        }
+        UserDetails userDetails = userService.loadUserByUsername(request.getLogin());
+        System.out.println(userDetails.getAuthorities());
+        String token = jwtTokenService.generateToken(userDetails);
+        return ResponseEntity.ok(new JwtResponse(token));
     }
 }
