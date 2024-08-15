@@ -8,7 +8,7 @@ spring:
     name: Shop Application
   sql:
     init:
-      platform: h2
+      platform: postgresql
   datasource:
     url: jdbc:postgresql://localhost:5432/shop
     username: postgres

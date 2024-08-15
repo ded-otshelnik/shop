@@ -29,7 +29,7 @@ public class AuthController {
 
     @PostMapping("/login")
     @Operation(
-            summary = "User sign in",
+            summary = "Sign in",
             description = "Implements sign in process"
     )
     public ResponseEntity<?> login(@RequestBody JwtRequest request){
@@ -46,8 +46,8 @@ public class AuthController {
 
     @PostMapping("/register")
     @Operation(
-            summary = "User sign in",
-            description = "Implements sign in process"
+            summary = "Sign up",
+            description = "Implements sign up process"
     )
     public ResponseEntity<?> register(@RequestBody JwtRequest request){
         try {
@@ -55,7 +55,7 @@ public class AuthController {
             authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(request.getLogin(), request.getPassword()));
         }
         catch (BadCredentialsException ex){
-            return new ResponseEntity<>("Incorrect credentials", HttpStatus.UNAUTHORIZED);
+            return new ResponseEntity<>(ex.getMessage(), HttpStatus.UNAUTHORIZED);
         }
         UserDetails userDetails = userService.loadUserByUsername(request.getLogin());
         System.out.println(userDetails.getAuthorities());
