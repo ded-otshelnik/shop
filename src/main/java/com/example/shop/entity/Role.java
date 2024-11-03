@@ -16,6 +16,6 @@ public class Role {
 
     @NonNull
     @Getter
-    @Column
+    @Column(unique = true)
     private String name;
 }

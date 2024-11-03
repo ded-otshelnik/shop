@@ -3,14 +3,12 @@ package com.example.shop.service;
 import com.example.shop.entity.Role;
 import com.example.shop.entity.User;
 import com.example.shop.entity.jwt.JwtRequest;
+import com.example.shop.exception.ResourceNotFoundException;
 import com.example.shop.repo.RoleRepository;
 import com.example.shop.repo.UserRepository;
 import lombok.AllArgsConstructor;
-import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -26,31 +24,15 @@ public class UserService implements UserDetailsService {
     private final RoleRepository roleRepository;
     private final BCryptPasswordEncoder bCryptPasswordEncoder = new BCryptPasswordEncoder();
 
-    @Transactional(readOnly = true)
-    public ResponseEntity<User> checkCredentials(String login, String password){
-        Optional<User> optionalUser = userRepository.findByUsername(login);
-        if (optionalUser.isEmpty()){
-            return new ResponseEntity<>(new User(), HttpStatus.NOT_FOUND);
-        }
-
-        User user = optionalUser.get();
-        String expectedPassword = user.getPassword();
-        if (!bCryptPasswordEncoder.matches(password, expectedPassword)){
-            return new ResponseEntity<>(new User(), HttpStatus.CONFLICT);
-        }
-
-        return ResponseEntity.ok(user);
-    }
-
     @Transactional
     public void registerNewUser(JwtRequest request){
         if (userRepository.existsByUsername(request.getLogin())){
             throw new BadCredentialsException("User with this credentials is already exist");
         }
 
-        Role role = roleRepository.findByName("USER").orElseThrow();
+        Role role = roleRepository.findByName("USER").orElseThrow(() -> new ResourceNotFoundException("No such role"));
         User user = new User(request.getLogin(), bCryptPasswordEncoder.encode(request.getPassword()));
-        user.setRoles(List.of(role));
+        user.addRole(role);
 
         userRepository.save(user);
     }
@@ -68,9 +50,5 @@ public class UserService implements UserDetailsService {
 
     public List<User> getUsers(){
         return userRepository.findAll();
-    }
-
-    public Optional<User> getUserByUsername(String username){
-        return userRepository.findByUsername(username);
     }
 }

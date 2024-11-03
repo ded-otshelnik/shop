@@ -1,37 +1,38 @@
 package com.example.shop.controller;
 
 import com.example.shop.entity.Cart;
+import com.example.shop.entity.OrderItem;
 import com.example.shop.entity.Product;
 import com.example.shop.exception.ResourceNotFoundException;
 import com.example.shop.service.ProductService;
-import com.example.shop.service.UserService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 @RestController
 @RequestMapping("/api/cart")
+@Slf4j
 @RequiredArgsConstructor
 @Tag(name = "CartController", description = "Cart controller")
 public class CartController {
-    private static final Logger logger = LoggerFactory.getLogger(CartController.class.getName());
 
     private final ProductService productService;
     private final Cart cart;
 
     @GetMapping("get")
+    @ResponseStatus(HttpStatus.OK)
     @Operation(
             summary = "Getting cart",
             description = "Remove product from cart"
     )
-    public Cart getCart(){
-        logger.info(cart.toString());
-        return cart;
+    public List<OrderItem> getCart(){
+        return cart.getItems();
 
     }
     @PostMapping("add")
@@ -42,7 +43,7 @@ public class CartController {
             description = "Add product to cart"
     )
     public void addToCart(@RequestParam(name = "product_id") Long productId){
-        logger.info("Adding to cart");
+        log.info("Adding to cart");
         Product product = productService.getProduct(productId).orElseThrow(() -> new ResourceNotFoundException("Incorrect product id"));
         cart.addOrIncrement(product);
     }
@@ -55,7 +56,7 @@ public class CartController {
             description = "Remove product from cart"
     )
     public void removeFromCart(@RequestParam(name = "product_id") Long productId){
-        logger.info("Removing from cart");
+        log.info("Removing from cart");
         Product product = productService.getProduct(productId).orElseThrow(() -> new ResourceNotFoundException("Incorrect product id"));
         cart.decrementOrRemove(product);
     }

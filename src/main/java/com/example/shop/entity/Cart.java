@@ -38,16 +38,6 @@ public class Cart {
         items.add(new OrderItem(product));
     }
 
-    public void addOnly(Product product){
-        for (OrderItem item: items){
-            if (item.getProduct().getId().equals(product.getId())){
-                items.add(new OrderItem(product));
-                recalculate();
-                return;
-            }
-        }
-    }
-
     public void decrementOrRemove(Product product){
         Iterator<OrderItem> iter = items.iterator();
         while (iter.hasNext()){

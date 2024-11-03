@@ -8,6 +8,7 @@ spring:
     name: Shop Application
   sql:
     init:
+      mode: always
       platform: postgresql
   datasource:
     url: jdbc:postgresql://localhost:5432/shop

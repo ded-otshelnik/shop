@@ -8,6 +8,8 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.hibernate.annotations.Cascade;
+import org.hibernate.annotations.Fetch;
+import org.hibernate.annotations.FetchMode;
 
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -26,11 +28,10 @@ public class Order{
     @Getter
     private Long id;
 
-    @OneToMany
-    @Cascade(org.hibernate.annotations.CascadeType.ALL)
-    private List<OrderItem> products = new ArrayList<>();
+    @OneToMany(cascade = {CascadeType.PERSIST, CascadeType.REMOVE})
+    private List<OrderItem> orderItems = new ArrayList<>();
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id")
     @JsonIgnore
     private User user;
@@ -42,6 +43,4 @@ public class Order{
 
     @Column(name = "total")
     private Double price = 0.0;
-
-
 }

@@ -22,11 +22,8 @@ import org.springframework.stereotype.Component;
 @Component
 @RequiredArgsConstructor
 public class OrderService {
-    private final ProductRepository productRepository;
     private final OrderRepository orderRepository;
-    private final OrderItemRepository orderItemRepository;
     private final UserRepository userRepository;
-
 
     @Transactional
     public void createOrder(String login, Cart cart){
@@ -41,38 +38,36 @@ public class OrderService {
             throw new CartIsEmptyException("Cart is empty");
         }
 
+        // copy info from cart and set user who owns the order
         Order order = new Order();
+        order.setUser(user);
+        order.setOrderItems(cart.getItems());
+        order.setPrice(cart.getPrice());
         orderRepository.save(order);
 
-        for (var item: cart.getItems()){
-            item.setOrder(order);
-            orderItemRepository.save(item);
-        }
-
+        // delete all cart items after order creation
         cart.clearCart();
-        order.setUser(user);
     }
 
     @Transactional
-    public ResponseEntity<String> deleteOrder(String login, Long orderId){
+    public void deleteOrder(String login, Long orderId){
         if (userRepository.existsByUsername(login)){
-            return new ResponseEntity<String>("Invalid login.", HttpStatus.BAD_REQUEST);
+            throw new UsernameNotFoundException("Invalid login.");
         }
         if (!orderRepository.existsById(orderId)){
-            return new ResponseEntity<String>("Invalid order id.", HttpStatus.BAD_REQUEST);
+            throw new RuntimeException("Invalid order id.");
         }
         Order order = orderRepository.getReferenceById(orderId);
         if (order.getUser().equals(login)){
-            return new ResponseEntity<String>("Invalid login.", HttpStatus.BAD_REQUEST);
+            throw new RuntimeException("Invalid login.");
         }
 
         orderRepository.deleteById(orderId);
-
-        return new ResponseEntity<String>("Order was deleted", HttpStatus.OK);
     }
 
     public List<Order> getUserOrders(String login){
         Optional<User> optionalUser = userRepository.findByUsername(login);
-        return optionalUser.map(orderRepository::findAllByUser).orElseThrow(() -> new UsernameNotFoundException("Incorrect login"));
+        return optionalUser.map(orderRepository::findAllByUser)
+                .orElseThrow(() -> new UsernameNotFoundException("Incorrect login"));
     }
 }
