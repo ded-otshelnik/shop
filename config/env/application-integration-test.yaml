@@ -4,6 +4,8 @@ server:
 spring:
   application:
     name: integration-test
+  main:
+    banner-mode: false
   jpa:
     properties:
       hibernate:

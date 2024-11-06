@@ -15,6 +15,7 @@ import io.restassured.http.ContentType;
 import io.restassured.response.Response;
 import lombok.extern.slf4j.Slf4j;
 import org.json.JSONObject;
+import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.jupiter.api.*;
 import org.junit.runner.RunWith;
@@ -54,7 +55,7 @@ public class DatabaseIntegrationTest {
 
     // test list that will be used as "expected"
 
-    private final List<User> users = new ArrayList<>();
+    private static final List<User> users = new ArrayList<>();
 
     private final List<Product> prods = new ArrayList<>();
 
@@ -80,46 +81,49 @@ public class DatabaseIntegrationTest {
     @Autowired
     JwtTokenService jwtTokenService;
 
-    static {
-        postgres.start();
-    }
-
     @BeforeAll
-    void setUp() {
+    public void setUp() {
+        log.info("Add test instances");
         Role admin_role = roleRepository.findByName("ADMIN").orElseThrow(() -> new ResourceNotFoundException("No such role"));
         Role user_role = roleRepository.findByName("USER").orElseThrow(() -> new ResourceNotFoundException("No such role"));
 
-
         User admin = new User("test_admin", "test_admin_pass");
         admin.addRole(admin_role);
-
         User user = new User("test_user", "test_user_pass");
         user.addRole(user_role);
 
         users.addAll(List.of(admin, user));
-
-        RestAssured.urlEncodingEnabled = false;
     }
 
+    static {
+        RestAssured.urlEncodingEnabled = false;
+        postgres.start();
+    }
 
     @Test
     @Order(1)
     public void testA_ConnectionToDatabase(){
+        log.info("First test");
         Assertions.assertNotNull(userRepository);
         Assertions.assertNotNull(roleRepository);
         Assertions.assertNotNull(prodRepository);
         Assertions.assertNotNull(orderRepository);
     }
 
+
+
     @Test
     @Order(2)
     @Rollback(false)
     public void testB_AddUsers() throws Exception{
-        RestAssured.baseURI = RestAssured.baseURI + ":" + port + "/auth/register";
+        log.info("Second test");
+        setUp();
+        RestAssured.baseURI = "http://localhost:" + port + "/auth/register";
         for(User user: users){
             JSONObject json_user = new JSONObject();
             json_user.put("login", user.getUsername());
             json_user.put("password", user.getPassword());
+            log.info("Add user {}", user.getUsername());
 
             io.restassured.specification.RequestSpecification given = given();
             Response response = given
@@ -144,10 +148,9 @@ public class DatabaseIntegrationTest {
     @Order(3)
     @Rollback(false)
     public void testC_PermissionsForUsersAndAdmins() throws Exception{
-        RestAssured.baseURI = RestAssured.baseURI + ":" + port + "/api/admin/get-users";
-        for (User _user: userRepository.findAll()){
-            System.out.println(_user.getUsername());
-        }
+        log.info("Third test");
+        RestAssured.baseURI = "http://localhost:" + port + "/api/admin/get-users";
+
         User user = userRepository.findByUsername("test_user").orElseThrow(() -> new RuntimeException("No such user"));
         String token = jwtTokenService.generateToken(user);
         // arrange
@@ -163,12 +166,7 @@ public class DatabaseIntegrationTest {
         // make test_admin be real admin in test environment
         adminService.grantAdminAuthority("test_admin");
         user = userRepository.findByUsername("test_admin").orElseThrow(() -> new RuntimeException("No such user"));
-        System.out.println(user.getUsername());
-        for (var authority: user.getAuthorities()){
-            System.out.println(authority);
-        }
         token = jwtTokenService.generateToken(user);
-        System.out.println(token);
 
         // arrange
         given()
