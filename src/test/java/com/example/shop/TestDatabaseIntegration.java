@@ -15,7 +15,6 @@ import io.restassured.http.ContentType;
 import io.restassured.response.Response;
 import lombok.extern.slf4j.Slf4j;
 import org.json.JSONObject;
-import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.jupiter.api.*;
 import org.junit.runner.RunWith;
@@ -43,7 +42,7 @@ import static io.restassured.RestAssured.given;
 )
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 @Slf4j
-public class DatabaseIntegrationTest {
+public class TestDatabaseIntegration {
 
     @LocalServerPort
     public int port;
@@ -53,12 +52,10 @@ public class DatabaseIntegrationTest {
     private static final PostgreSQLContainer<?> postgres = new PostgreSQLContainer<>("postgres:11.1")
             .withDatabaseName("integration_tests_db");
 
-    // test list that will be used as "expected"
 
-    private static final List<User> users = new ArrayList<>();
-
+    // test lists that will be used as "expected"
+    private final List<User> users = new ArrayList<>();
     private final List<Product> prods = new ArrayList<>();
-
     private final List<com.example.shop.entity.Order> orders = new ArrayList<>();
 
     @DynamicPropertySource
@@ -119,14 +116,16 @@ public class DatabaseIntegrationTest {
         log.info("Second test");
         setUp();
         RestAssured.baseURI = "http://localhost:" + port + "/auth/register";
+
         for(User user: users){
+            // arrange
             JSONObject json_user = new JSONObject();
             json_user.put("login", user.getUsername());
             json_user.put("password", user.getPassword());
             log.info("Add user {}", user.getUsername());
 
-            io.restassured.specification.RequestSpecification given = given();
-            Response response = given
+            // act
+            Response response = given()
                                     .accept(ContentType.JSON)
                                     .contentType(ContentType.JSON)
                                     .body(json_user.toString())
@@ -135,6 +134,7 @@ public class DatabaseIntegrationTest {
 
             var body = response.getBody();
 
+            // assert
             Assertions.assertEquals(HttpStatus.OK,
                                     HttpStatus.valueOf(response.statusCode()));
             Assertions.assertTrue(userRepository.existsByUsername(user.getUsername()));
@@ -151,9 +151,9 @@ public class DatabaseIntegrationTest {
         log.info("Third test");
         RestAssured.baseURI = "http://localhost:" + port + "/api/admin/get-users";
 
+        // arrange
         User user = userRepository.findByUsername("test_user").orElseThrow(() -> new RuntimeException("No such user"));
         String token = jwtTokenService.generateToken(user);
-        // arrange
         given()
                 .header("Authorization", "Bearer " + token)
         // act

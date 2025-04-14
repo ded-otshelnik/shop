@@ -3,6 +3,8 @@ package com.example.shop.entity;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.util.List;
+
 @Getter
 @Data
 @Entity
@@ -24,4 +26,15 @@ public class Product{
     @Setter
     @NonNull
     private Double price;
+
+    @OneToMany(cascade = CascadeType.ALL)
+    private List<Review> reviews;
+
+    public void addReview(Review review){
+        reviews.add(review);
+    }
+
+    public void removeReview(Review review){
+        reviews.remove(review);
+    }
 }

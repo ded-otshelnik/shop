@@ -24,9 +24,9 @@ public class ApplicationBoot implements ApplicationListener<ApplicationReadyEven
     private String needToUploadDB;
 
     private final UserRepository userRepository;
+    private final RoleRepository roleRepository;
     private final ProductRepository productRepository;
     private final BCryptPasswordEncoder bCryptPasswordEncoder;
-    private final RoleRepository roleRepository;
 
     @Override
     public void onApplicationEvent(final @NonNull ApplicationReadyEvent event) {
@@ -42,6 +42,7 @@ public class ApplicationBoot implements ApplicationListener<ApplicationReadyEven
 
             User admin = new User("andrey", bCryptPasswordEncoder.encode("admin"));
             admin.addRole(admin_role);
+            admin.addRole(user_role);
             userRepository.save(admin);
 
             User user = new User("test", bCryptPasswordEncoder.encode("test"));

@@ -6,10 +6,7 @@ import java.util.List;
 
 import com.example.shop.entity.*;
 import com.example.shop.exception.CartIsEmptyException;
-import com.example.shop.repo.OrderItemRepository;
-import com.example.shop.repo.OrderRepository;
-import com.example.shop.repo.ProductRepository;
-import com.example.shop.repo.UserRepository;
+import com.example.shop.repo.*;
 
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
@@ -25,8 +22,10 @@ public class OrderService {
     private final OrderRepository orderRepository;
     private final UserRepository userRepository;
 
+    private final Cart cart;
+
     @Transactional
-    public void createOrder(String login, Cart cart){
+    public void createOrder(String login){
         // get user that makes a new order
         Optional<User> optionalUser = userRepository.findByUsername(login);
         if (optionalUser.isEmpty()){
@@ -37,6 +36,8 @@ public class OrderService {
         if (cart.isEmpty()){
             throw new CartIsEmptyException("Cart is empty");
         }
+
+
 
         // copy info from cart and set user who owns the order
         Order order = new Order();

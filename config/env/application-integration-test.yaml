@@ -6,7 +6,6 @@ spring:
     name: integration-test
   main:
     banner-mode: false
-  jpa:
     properties:
       hibernate:
         show_sql: false

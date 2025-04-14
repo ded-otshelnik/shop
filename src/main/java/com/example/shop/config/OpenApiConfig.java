@@ -40,13 +40,13 @@ public class OpenApiConfig {
                         .description("Shop REST Application API using Spring Boot")
                         .version(version)
                         .summary("This app implements shop as REST Server. " +
-                                "App based on Spring Boot 3 and PostgreSQL database.")
+                                 "App based on Spring Boot 3 and PostgreSQL database.")
                         .contact(new Contact()
-                                .name("Budnikov Andrey"))
+                                    .name("Budnikov Andrey"))
                 )
                 .servers(List.of(new Server()
-                        .url("http://localhost:8080/")
-                        .description("Shop server URL"))
+                                    .url("http://localhost:8080/")
+                                    .description("Shop server URL"))
                 );
     }
 }

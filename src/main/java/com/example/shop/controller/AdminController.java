@@ -1,13 +1,8 @@
 package com.example.shop.controller;
 
 import java.util.List;
-import java.util.Optional;
 
-import com.example.shop.exception.ResourceNotFoundException;
-import com.example.shop.repo.RoleRepository;
 import com.example.shop.service.AdminService;
-import com.example.shop.service.ProductService;
-import com.example.shop.entity.Product;
 import com.example.shop.entity.User;
 import com.example.shop.service.UserService;
 
@@ -31,32 +26,7 @@ import org.springframework.web.bind.annotation.*;
 public class AdminController {
 
     private final UserService userService;
-    private final ProductService productService;
     private final AdminService adminService;
-
-    @GetMapping("/product/{product_id}")
-    @ResponseStatus(HttpStatus.OK)
-    @Operation(
-            summary = "Get product",
-            description = "Get product by id"
-    )
-    @ApiResponse(responseCode = "403")
-    @ApiResponse(responseCode = "200")
-    public Product getProduct(@PathVariable("product_id") Long id){
-        Optional<Product> product = productService.getProduct(id);
-        return product.orElseThrow(() -> new ResourceNotFoundException("Incorrect product id"));
-    }
-
-    @GetMapping("get-products")
-    @ResponseStatus(HttpStatus.OK)
-    @Operation(
-            summary = "Get products",
-            description = "Get all products"
-    )
-    @ApiResponse(responseCode = "200")
-    private List<Product> getProducts(){
-        return productService.getProducts();
-    }
 
     @GetMapping("get-users")
     @ResponseStatus(HttpStatus.OK)

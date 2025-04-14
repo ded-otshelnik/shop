@@ -1,13 +1,9 @@
 package com.example.shop.controller;
 
-import com.example.shop.entity.Cart;
 import com.example.shop.entity.OrderItem;
-import com.example.shop.entity.Product;
-import com.example.shop.exception.ResourceNotFoundException;
-import com.example.shop.service.ProductService;
+import com.example.shop.service.CartService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -22,8 +18,7 @@ import java.util.List;
 @Tag(name = "CartController", description = "Cart controller")
 public class CartController {
 
-    private final ProductService productService;
-    private final Cart cart;
+    private final CartService cartService;
 
     @GetMapping("get")
     @ResponseStatus(HttpStatus.OK)
@@ -32,11 +27,11 @@ public class CartController {
             description = "Remove product from cart"
     )
     public List<OrderItem> getCart(){
-        return cart.getItems();
+        log.info("Get cart");
+        return cartService.getCart();
 
     }
     @PostMapping("add")
-    @Transactional
     @ResponseStatus(HttpStatus.OK)
     @Operation(
             summary = "Adding to cart",
@@ -44,12 +39,10 @@ public class CartController {
     )
     public void addToCart(@RequestParam(name = "product_id") Long productId){
         log.info("Adding to cart");
-        Product product = productService.getProduct(productId).orElseThrow(() -> new ResourceNotFoundException("Incorrect product id"));
-        cart.addOrIncrement(product);
+        cartService.addToCart(productId);
     }
 
     @DeleteMapping("remove")
-    @Transactional
     @ResponseStatus(HttpStatus.OK)
     @Operation(
             summary = "Removing from cart",
@@ -57,7 +50,6 @@ public class CartController {
     )
     public void removeFromCart(@RequestParam(name = "product_id") Long productId){
         log.info("Removing from cart");
-        Product product = productService.getProduct(productId).orElseThrow(() -> new ResourceNotFoundException("Incorrect product id"));
-        cart.decrementOrRemove(product);
+        cartService.removeFromCart(productId);
     }
 }

@@ -20,9 +20,7 @@ public class AdminService {
     public void grantAdminAuthority(String username){
         User user = userRepository.findByUsername(username).orElseThrow(() -> new UsernameNotFoundException("No such user"));
         Role admin = roleRepository.findByName("ADMIN").orElseThrow(() -> new ResourceNotFoundException("No such role"));
-
         user.addRole(admin);
-
         userRepository.save(user);
     }
 }

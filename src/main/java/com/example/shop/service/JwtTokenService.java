@@ -1,23 +1,18 @@
 package com.example.shop.service;
 
-import io.jsonwebtoken.Claims;
-import io.jsonwebtoken.Jwts;
-import io.jsonwebtoken.SignatureAlgorithm;
+import io.jsonwebtoken.*;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
 import lombok.extern.slf4j.Slf4j;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 
+import javax.crypto.SecretKey;
 import java.security.Key;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.Date;
-import java.util.HashMap;
-import java.util.Map;
 import java.util.function.Function;
 
 @Service
@@ -28,20 +23,13 @@ public class JwtTokenService {
     @Value("${token.signing.key}")
     private String jwtSigningKey;
 
-    public String extractUsername(String token) {
+    public String extractUsername(String token) throws JwtException{
         return extractClaim(token, Claims::getSubject);
     }
 
-    public String generateToken(UserDetails userDetails) {
-        Map<String, Object> claims = new HashMap<>();
-        claims.put("login", userDetails.getUsername());
-        claims.put("role", userDetails.getAuthorities());
-        return generateToken(claims, userDetails);
-    }
-
-    public Boolean validateToken(String token, UserDetails userDetails) {
+    public Boolean validateToken(String token, UserDetails userDetails){
         final String username = extractUsername(token);
-        return (username.equals(userDetails.getUsername())) && !isTokenExpired(token);
+        return username.equals(userDetails.getUsername());
     }
 
     private <T> T extractClaim(String token, Function<Claims, T> claimsResolvers){
@@ -49,13 +37,12 @@ public class JwtTokenService {
         return claimsResolvers.apply(claims);
     }
 
-    private String generateToken(Map<String, Object> extraClaims, UserDetails userDetails) {
+    public String generateToken(UserDetails userDetails) {
         var now = Instant.now();
-        return Jwts.builder().claims(extraClaims)
-                             .subject(userDetails.getUsername())
+        return Jwts.builder().subject(userDetails.getUsername())
                              .issuedAt(Date.from(now))
                              .expiration(Date.from(now.plus(MINUTES, ChronoUnit.MINUTES)))
-                             .signWith(SignatureAlgorithm.HS256, getSigningKey()).compact();
+                             .signWith(getSigningKey()).compact();
     }
 
     private boolean isTokenExpired(String token) {
@@ -67,8 +54,9 @@ public class JwtTokenService {
     }
 
     private Claims extractAllClaims(String token) {
-       return Jwts.parser()
-               .setSigningKey(getSigningKey())
+        SecretKey key = (SecretKey) getSigningKey();
+        return Jwts.parser()
+               .verifyWith(key)
                .build()
                .parseSignedClaims(token)
                .getPayload();

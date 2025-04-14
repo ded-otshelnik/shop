@@ -2,9 +2,7 @@ package com.example.shop.entity;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
-import jakarta.transaction.Transactional;
 import lombok.*;
-import org.jetbrains.annotations.NotNull;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -32,7 +30,7 @@ public class User implements UserDetails {
     private String password;
 
     // Spring Security part
-    @ManyToMany(fetch = FetchType.EAGER, cascade = {
+    @ManyToMany(cascade = {
             CascadeType.PERSIST,
             CascadeType.MERGE
     })
@@ -50,7 +48,7 @@ public class User implements UserDetails {
     }
 
     @Override
-    public @NotNull String getUsername() {
+    public @NonNull String getUsername() {
         return username;
     }
 

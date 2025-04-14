@@ -43,7 +43,7 @@ public class SecurityConfig{
         http.csrf(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests((request) -> request.requestMatchers("/api/admin/**").hasAuthority("ADMIN"))
                 .authorizeHttpRequests((request) -> request.requestMatchers("/auth/**").permitAll())
-                .authorizeHttpRequests((request) -> request.requestMatchers("/actuator/**").permitAll())
+                .authorizeHttpRequests((request) -> request.requestMatchers("/actuator/**").hasAuthority("ADMIN"))
                 .authorizeHttpRequests((request) -> request.requestMatchers("/api-docs/**").permitAll())
                 .authorizeHttpRequests((request) -> request.requestMatchers(SWAGGER_WHITELIST).permitAll())
                 .authorizeHttpRequests((request) -> request.anyRequest().authenticated())
