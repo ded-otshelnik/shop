@@ -15,13 +15,13 @@ public class ReviewController {
     private final ReviewService reviewService;
 
 
-    @GetMapping("/{product_id}/reviews")
+    @GetMapping("/{product_id}")
     public List<Review> getReviews(@PathVariable("product_id") Long productId){
         return reviewService.getReviews(productId);
     }
 
     @PostMapping("/add-review")
-    public void addReview(ReviewDto reviewDto){
+    public void addReview(@RequestBody ReviewDto reviewDto){
         reviewService.addReview(reviewDto);
     }
 

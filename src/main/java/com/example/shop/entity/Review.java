@@ -1,5 +1,7 @@
 package com.example.shop.entity;
 
+import com.fasterxml.jackson.annotation.JsonGetter;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -22,5 +24,11 @@ public class Review {
     @Setter
     @ManyToOne(fetch = FetchType.LAZY)
     @NonNull
+    @JsonIgnore
     private Product product;
+
+    @JsonGetter("productId")
+    public Long getProduct() {
+        return product.getId();
+    }
 }
