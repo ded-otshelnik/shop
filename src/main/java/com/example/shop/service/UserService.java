@@ -30,8 +30,7 @@ public class UserService implements UserDetailsService {
             throw new BadCredentialsException("User with this credentials is already exist");
         }
 
-        Role role = roleRepository.findByName("USER")
-                .orElseThrow(() -> new ResourceNotFoundException("No such role"));
+        Role role = roleRepository.findByName("USER").orElseThrow(() -> new ResourceNotFoundException("No such role"));
         User user = new User(request.getLogin(), bCryptPasswordEncoder.encode(request.getPassword()));
         user.addRole(role);
 
@@ -46,8 +45,7 @@ public class UserService implements UserDetailsService {
 
         User user = optionalUser.get();
 
-        return new org.springframework.security.core.userdetails.User(user.getUsername(),
-                user.getPassword(), user.getAuthorities());
+        return new org.springframework.security.core.userdetails.User(user.getUsername(), user.getPassword(), user.getAuthorities());
     }
 
     public List<User> getUsers(){

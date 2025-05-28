@@ -31,6 +31,7 @@
 	</developers>
 
 	<properties>
+		<maven.compiler.release>17</maven.compiler.release>
 		<java.version>17</java.version>
 	</properties>
 
