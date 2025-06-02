@@ -24,5 +24,5 @@ A simple Java-based shop application designed to manage products, customers, and
 - Modular codebase for scalability and maintenance
 - JWT-based authentication
 - OpenAPI specification
-- Docker build and Docker Compose deployment of app with database
+- Docker build and Docker Compose deployment of an app with a database
 
